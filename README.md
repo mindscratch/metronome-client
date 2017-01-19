@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/mindscratch/metronome-client?status.png)](https://godoc.org/github.com/mindscratch/metronome-client)
 
-Metronome client library written in Go inspired by [chronos-client](https://github.com/yieldbot/chronos-client/).
+[Metronome](https://github.com/mindscratch/metronome-client) client library written in Go inspired by [chronos-client](https://github.com/yieldbot/chronos-client/).
 
 This library targets the `v1` API.
 
