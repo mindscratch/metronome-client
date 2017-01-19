@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"errors"
 	"encoding/json"
+	"bytes"
 )
 
 // Return all of the metronome schedules for a particular job.
@@ -18,7 +19,7 @@ func Schedules(cl client.Client, jobId string) ([]v1.Schedule, error) {
 		return nil, errors.New("failed to fetch schedules due to " + err.Error())
 	}
 
-	// Parse jobs
+	// Parse schedules
 	var schedules []v1.Schedule
 	if err = json.Unmarshal(res, &schedules); err != nil {
 		return nil, errors.New("failed to unmarshal JSON data due to " + err.Error())
@@ -91,6 +92,44 @@ func DeleteSchedule(cl client.Client, jobId, scheduleId string) (bool, error) {
 		} else {
 			return false, errors.New("failed to delete schedule due to " + err.Error())
 		}
+	}
+
+	return true, nil
+}
+
+// Create or update a schedule using the given JSON. If create is true, the schedule will be created, otherwise the
+// schedule will be updated.
+//
+// Returns a boolean (success or not) and an error.
+func doCreateOrUpdateSchedule(cl client.Client, jobId, scheduleJson string, create bool) (bool, error) {
+	// check job id
+	if jobId == "" {
+		return false, errors.New("id for a job must be provided")
+	}
+
+	// check the schedule, return an error if it's invalid
+	buf := []byte(scheduleJson)
+	var schedule v1.Schedule
+	if err := json.Unmarshal(buf, &schedule); err != nil {
+		return false, errors.New("failed to unmarshal JSON data due to " + err.Error())
+	}
+
+	// create schedule
+	var req *http.Request
+	var err error
+	if create {
+		req, err = http.NewRequest("POST", cl.MetronomeUrl()+"/v1/jobs/"+jobId+"/schedules", bytes.NewBuffer(buf))
+	} else {
+		req, err = http.NewRequest("PUT", cl.MetronomeUrl()+"/v1/jobs/"+jobId+"/schedules/"+schedule.Id, bytes.NewBuffer(buf))
+	}
+	req.Header.Set("Content-Type", "application/json")
+	_, err = cl.DoRequest(req)
+	if err != nil {
+		action := "update"
+		if create {
+			action = "create"
+		}
+		return false, errors.New("failed to " + action + " schedule due to " + err.Error())
 	}
 
 	return true, nil

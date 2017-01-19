@@ -10,12 +10,15 @@ import (
 
 func main() {
 	cl := metronome.Client
-	jobs, err := v1.Jobs(cl, true, false, false, false)
+	runs, err := v1.Runs(cl, "prod.example.app")
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, j := range jobs {
-		//fmt.Printf("%s %s %v\n", j.Id, j.Description)
-		fmt.Printf("%#v\n", j)
+	if len(runs) > 0 {
+		for _, r := range runs {
+			fmt.Printf("%#v\n", r)
+		}
+	} else {
+		fmt.Println("no runs currently exist")
 	}
 }

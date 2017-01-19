@@ -10,12 +10,9 @@ import (
 
 func main() {
 	cl := metronome.Client
-	jobs, err := v1.Jobs(cl, true, false, false, false)
+	_, err := v1.CreateRun(cl, "prod.example.app")
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, j := range jobs {
-		//fmt.Printf("%s %s %v\n", j.Id, j.Description)
-		fmt.Printf("%#v\n", j)
-	}
+	fmt.Println("Successfully created run")
 }
