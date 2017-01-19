@@ -6,6 +6,10 @@ Metronome client library written in Go inspired by [chronos-client](https://gith
 
 This library targets the `v1` API.
 
+## Issues affecting this library
+
+It's worth noting that I've opened a couple [issues](https://github.com/dcos/metronome/issues/created_by/mindscratch) that I've found with Metronome while implementing this library.
+
 ## Examples
 
 Look at the programs in the `examples` directory. An application exists for each v1 API endpoint, they also demonstrate how to use this library.
