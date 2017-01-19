@@ -1,11 +1,14 @@
 # metronome-client
 
+[![GoDoc](https://godoc.org/github.com/mindscratch/metronome-client?status.png)](https://godoc.org/github.com/mindscratch/metronome-client)
+
 Metronome client library written in Go inspired by [chronos-client](https://github.com/yieldbot/chronos-client/).
-Some code was also copied/reused where practical.
 
 This library targets the `v1` API.
 
-## Run Examples
+## Examples
+
+Look at the programs in the `examples` directory. An application exists for each v1 API endpoint, they also demonstrate how to use this library.
 
 Example programs exist for most API calls. To run example, such as `print_jobs`, do the following:
 
