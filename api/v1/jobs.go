@@ -96,14 +96,14 @@ func Job(cl client.Client, id string, includeActiveRuns, includeSchedules, inclu
 //
 // Returns a boolean (success or not) and an error.
 func CreateJob(cl client.Client, jobJson string) (bool, error) {
-	return doCreateOrUpdate(cl, jobJson, true)
+	return doCreateOrUpdateJob(cl, jobJson, true)
 }
 
 // Update an existing job with the provided JSON.
 //
 // Returns a boolean (success or not) and an error.
 func UpdateJob(cl client.Client, jobJson string) (bool, error) {
-	return doCreateOrUpdate(cl, jobJson, false)
+	return doCreateOrUpdateJob(cl, jobJson, false)
 }
 
 // Delete an existing job which has the provided id.
@@ -138,7 +138,7 @@ func DeleteJob(cl client.Client, id string) (bool, error) {
 // be updated.
 //
 // Returns a boolean (success or not) and an error.
-func doCreateOrUpdate(cl client.Client, jobJson string, create bool) (bool, error) {
+func doCreateOrUpdateJob(cl client.Client, jobJson string, create bool) (bool, error) {
 	// check the job, return an error if it's invalid
 	buf := []byte(jobJson)
 	var job v1.Job
@@ -157,12 +157,53 @@ func doCreateOrUpdate(cl client.Client, jobJson string, create bool) (bool, erro
 	req.Header.Set("Content-Type", "application/json")
 	_, err = cl.DoRequest(req)
 	if err != nil {
-		return false, errors.New("failed to create job due to " + err.Error())
+		action := "update"
+		if create {
+			action = "create"
+		}
+		return false, errors.New("failed to " + action + " job due to " + err.Error())
 	}
 
 	return true, nil
 }
 
+// Create or update a schedule using the given JSON. If create is true, the schedule will be created, otherwise the
+// schedule will be updated.
+//
+// Returns a boolean (success or not) and an error.
+func doCreateOrUpdateSchedule(cl client.Client, jobId, scheduleJson string, create bool) (bool, error) {
+	// check job id
+	if jobId == "" {
+		return false, errors.New("id for a job must be provided")
+	}
+
+	// check the schedule, return an error if it's invalid
+	buf := []byte(scheduleJson)
+	var schedule v1.Schedule
+	if err := json.Unmarshal(buf, &schedule); err != nil {
+		return false, errors.New("failed to unmarshal JSON data due to " + err.Error())
+	}
+
+	// create schedule
+	var req *http.Request
+	var err error
+	if create {
+		req, err = http.NewRequest("POST", cl.MetronomeUrl()+"/v1/jobs/"+jobId+"/schedules", bytes.NewBuffer(buf))
+	} else {
+		req, err = http.NewRequest("PUT", cl.MetronomeUrl()+"/v1/jobs/"+jobId+"/schedules/"+schedule.Id, bytes.NewBuffer(buf))
+	}
+	req.Header.Set("Content-Type", "application/json")
+	_, err = cl.DoRequest(req)
+	if err != nil {
+		action := "update"
+		if create {
+			action = "create"
+		}
+		return false, errors.New("failed to " + action + " schedule due to " + err.Error())
+	}
+
+	return true, nil
+}
 func buildEmbedQueryParameter(includeActiveRuns, includeSchedules, includeHistory, includeHistorySummary bool) string {
 	embedOptions := make([]string, 0)
 	if includeActiveRuns {
