@@ -26,7 +26,7 @@ type Run struct {
 	MaxLaunchDelay int `json:"maxLaunchDelay"`
 	Mem int `json:"mem"`
 	Placement Placement `json:"placement"`
-	User string `json:"user"`
+	User string `json:"user,omitempty"`
 	Restart Restart `json:"restart"`
 	Volumes []Volume `json:"volumes"`
 }
